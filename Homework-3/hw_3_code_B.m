@@ -3,6 +3,7 @@
 % Item B
 
 % In this script is plotted the Chennel Capacity.
+% This code need the previous installation of the toolbox CVX. Available in http://cvxr.com/cvx/download/
 
 clc; clear; close all;
 
