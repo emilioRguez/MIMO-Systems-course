@@ -1,9 +1,11 @@
-% Emilio Rodriguez
+% Emilio Rodriguez 1913153
 % Homework 3
 % Item B
 
-% In this script is plotted the Chennel Capacity.
-% This code needs the previous installation of the toolbox CVX. Available in http://cvxr.com/cvx/download/
+% In this script is plotted the Chennel Capacity but now was used a
+% Keyhole Channel.
+% This code needs the previous installation of the CVX toolbox. Available 
+% in http://cvxr.com/cvx/download/
 
 clc; clear; close all;
 
@@ -23,10 +25,10 @@ C = zeros(1,length(snr));
 
 sigma_w = sqrt(Etx./snr);
 
-
-% Rayleigh Channel
-H = sqrt(1/2)*(randn(nr,nt) + 1i*randn(nr,nt));
-
+% Keyhole Channel
+a = randi(1,nt) + 1i*randi(1,nt);
+b = randi(1,nr) + 1i*randi(1,nr);
+H = b.*a';
 
 for k = 1:length(snr)
     
