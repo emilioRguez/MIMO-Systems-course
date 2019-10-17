@@ -1,7 +1,7 @@
 % Emilio Rodriguez
 % Homework 6
 
-% Implementation of a ML Detector.
+% Implementation of a ML Detector with QPSK modulation.
 
 clear; clc; close all;
 
@@ -30,27 +30,48 @@ H = sqrt(1/2)*(randn(nr,nt) + 1i*randn(nr,nt));
 % Alphabet with QPSK symbols
 A = 1/sqrt(2) * [1+1i 1-1i -1+1i -1-1i];
 
+pairs_tx = [npermutek(A,2); A(1) A(1); A(2) A(2); A(3) A(3); A(4) A(4)];
+
+% Outputs
+X_ML = zeros(size(pairs_tx,1),1);
+
 for k = 1:length(snr)
     
     Cw = (sigma_w(k))^2 * I_nt;
     
-    % I need to compute the BER of QPSK, which depends of SNR
+    % Gaussian Noise vector
+    w = randn(nr,1) * sigma_w(k);
     
-    cvx_begin sdp quiet
-        variable x hermitian
-        minimize()
-        subject to
-            Cx >= 0;
-            trace(Cx) <= Etx;
-    cvx_end
+    for i = 1:size(pairs_tx,1)
+       
+        x = pairs_tx(i);
+        
+        % Receiver signal
+        y = H * x' + w;
+        
+        % ML detection
+        X_ML(i) = (norm(y - H * x'))^2;
+       
+    end
     
-    C(k) = log2(real(det(eye(nt) + inv(Cw)*H*Cx*H')));        
+    % Dectected symbol
+    [x_d,pos] = min(X_ML);
+    
+    
+    
+    
+    
+    
+   
+    
+    
+            
  
 end
 
 
 % Ploting I(x,y) vs. SNR
-plot(SNR,C);
-title ('Channel Capacity');
-xlabel('SNR');
-ylabel('Capacity');
+% plot(SNR,C);
+% title ('Channel Capacity');
+% xlabel('SNR');
+% ylabel('Capacity');
