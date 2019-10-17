@@ -10,10 +10,47 @@ clear; clc; close all;
 nr = 2;
 nt = 2;
 
-sigma_w = 1;
+I_nt = eye(nt);
 
-I_nr = eye(nr);
+Etx = 1;
 
-Cw = sigma_w^2*I_nr;
+SNR = -5:15;                % [dB]
+snr = 10.^(SNR/10);
 
-Cx = (Etx/nt)*I_nr;
+Cx = (Etx/nt) * I_nt;    % Power contraint
+
+C = zeros(1,length(snr));
+
+sigma_w = sqrt(Etx./snr);
+
+
+% Rayleigh Channel
+H = sqrt(1/2)*(randn(nr,nt) + 1i*randn(nr,nt));
+
+% Alphabet with QPSK symbols
+A = 1/sqrt(2) * [1+1i 1-1i -1+1i -1-1i];
+
+for k = 1:length(snr)
+    
+    Cw = (sigma_w(k))^2 * I_nt;
+    
+    % I need to compute the BER of QPSK, which depends of SNR
+    
+    cvx_begin sdp quiet
+        variable x hermitian
+        minimize()
+        subject to
+            Cx >= 0;
+            trace(Cx) <= Etx;
+    cvx_end
+    
+    C(k) = log2(real(det(eye(nt) + inv(Cw)*H*Cx*H')));        
+ 
+end
+
+
+% Ploting I(x,y) vs. SNR
+plot(SNR,C);
+title ('Channel Capacity');
+xlabel('SNR');
+ylabel('Capacity');
