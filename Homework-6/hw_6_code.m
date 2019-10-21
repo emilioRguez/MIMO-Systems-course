@@ -7,71 +7,88 @@ clear; clc; close all;
 
 % MIMO 2x2
 
-nr = 2;
 nt = 2;
 
-I_nt = eye(nt);
+nr = [2,4,8];
 
 Etx = 1;
 
-SNR = -5:15;                % [dB]
+SNR = -5:5:20;                % [dB]
 snr = 10.^(SNR/10);
-
-Cx = (Etx/nt) * I_nt;    % Power contraint
-
-C = zeros(1,length(snr));
 
 sigma_w = sqrt(Etx./snr);
 
-
-% Rayleigh Channel
-H = sqrt(1/2)*(randn(nr,nt) + 1i*randn(nr,nt));
+iter = 10000;            % Iterations number
 
 % Alphabet with QPSK symbols
 A = 1/sqrt(2) * [1+1i 1-1i -1+1i -1-1i];
+
+% Grey codification
+A_bit = [1 1; 1 0; 0 1; 0 0];
 
 pairs_tx = [npermutek(A,2); A(1) A(1); A(2) A(2); A(3) A(3); A(4) A(4)];
 
 % Outputs
 X_ML = zeros(size(pairs_tx,1),1);
+BER = zeros(iter,1);
+BER_F = zeros(length(snr),length(nr));
 
-for k = 1:length(snr)
+for p = 1:length(nr)
     
-    Cw = (sigma_w(k))^2 * I_nt;
+    % Rayleigh Channel
+    H = sqrt(1/2)*(randn(nr(p),nt) + 1i*randn(nr(p),nt));
     
-    % Gaussian Noise vector
-    w = randn(nr,1) * sigma_w(k);
-    
-    for i = 1:size(pairs_tx,1)
-       
-        x = pairs_tx(i);
-        
-        % Receiver signal
-        y = H * x' + w;
-        
-        % ML detection
-        X_ML(i) = (norm(y - H * x'))^2;
-       
+    for k = 1:length(snr)           
+
+        for l = 1:iter
+
+            % Gaussian Noise vector
+            w = randn(nr(p),1) * sigma_w(k);
+
+            % Transmitted signal
+            pos_1 = randi(4);
+            pos_2 = randi(4);
+
+            x = [A(pos_1); A(pos_2)];
+
+            x_bit = [A_bit(pos_1,:); A_bit(pos_2,:)];
+
+            % Received signal
+            y = H * x + w;
+
+            for j = 1:size(pairs_tx,1)
+
+                x_d = pairs_tx(j,:);
+
+                % ML detection
+                X_ML(j) = (norm(y - H * x_d.'))^2;       
+
+            end
+
+            % Dectected symbol
+            [min_dist,pos] = min(X_ML);
+
+            symb_pos_det_1 = find(abs(A-pairs_tx(pos,1)) <= 1e-10);
+            symb_pos_det_2 = find(abs(A-pairs_tx(pos,2)) <= 1e-10);
+
+            x_det_bit = [A_bit(symb_pos_det_1,:); A_bit(symb_pos_det_2,:)];
+
+            BER(l) = biterr(x_det_bit, x_bit);
+
+        end
+
+        BER_F(k,p) = sum(BER)/(iter*4);
+
     end
-    
-    % Dectected symbol
-    [x_d,pos] = min(X_ML);
-    
-    
-    
-    
-    
-    
-   
-    
-    
-            
- 
 end
 
 
-% Ploting I(x,y) vs. SNR
-% plot(SNR,C);
-% title ('Channel Capacity');
-% xlabel('SNR');
-% ylabel('Capacity');
+% Ploting
+semilogy(SNR,BER_F(:,1),'r-');
+hold on
+semilogy(SNR,BER_F(:,2),'b-');
+semilogy(SNR,BER_F(:,3),'g-');
+legend('nr = 2','nr = 4','nr = 8');
+title ('ML Detection');
+xlabel('SNR');
+ylabel('BER');
