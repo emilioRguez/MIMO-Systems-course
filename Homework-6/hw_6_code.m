@@ -43,7 +43,7 @@ for p = 1:length(nr)
             H = sqrt(1/2)*(randn(nr(p),nt) + 1i*randn(nr(p),nt));
             
             % Gaussian Noise vector
-            w = (randn(nr(p),1) + 1i*randn(nr(p),1)) * sigma_w(k);
+            w = (randn(nr(p),1) + 1i*randn(nr(p),1)) * sqrt(1/2)*sigma_w(k);
 
             % Transmitted signal
             pos_1 = randi(4);
