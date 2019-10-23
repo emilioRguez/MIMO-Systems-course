@@ -34,16 +34,16 @@ BER = zeros(iter,1);
 BER_F = zeros(length(snr),length(nr));
 
 for p = 1:length(nr)
-    
-    % Rayleigh Channel
-    H = sqrt(1/2)*(randn(nr(p),nt) + 1i*randn(nr(p),nt));
-    
+           
     for k = 1:length(snr)           
 
         for l = 1:iter
-
+            
+            % Rayleigh Channel
+            H = sqrt(1/2)*(randn(nr(p),nt) + 1i*randn(nr(p),nt));
+            
             % Gaussian Noise vector
-            w = randn(nr(p),1) * sigma_w(k);
+            w = (randn(nr(p),1) + 1i*randn(nr(p),1)) * sigma_w(k);
 
             % Transmitted signal
             pos_1 = randi(4);
