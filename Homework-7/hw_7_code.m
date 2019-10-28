@@ -16,11 +16,9 @@ Etx = 1;
 SNR = -5:5;                % [dB]
 snr = 10.^(SNR/10);
 
-Cx = (Etx/nt) * eye(nt);    % Power contraint
-
 sigma_w = sqrt(Etx./snr);
 
-iter = 250000;            % Iterations number
+iter = 80000;            % Iterations number
 
 % Alphabet with QPSK symbols
 A = 1/sqrt(2) * [1+1i 1-1i -1+1i -1-1i];
@@ -51,8 +49,6 @@ BER_MF = zeros(iter,1);
 BER_F_MF = zeros(length(snr),length(nr));
            
 for k = 1:length(snr)           
-    
-    Cw = (sigma_w(k))^2*eye(nt);
         
     for l = 1:iter
 
@@ -121,7 +117,7 @@ for k = 1:length(snr)
         %---> ZF Detector
         G_ZF = (H' * H)^-1 * H';
         
-        y_zf = G_ZF * y;
+        y_zf = G_ZF * y;    Cw = (sigma_w(k))^2*eye(nt);
         
         for j = 1:length(A)
             for p = 1:nt
