@@ -1,6 +1,6 @@
 # MIMO-Systems-course
 
-In this repository are all my homework of the **MIMO Systems** course received at PUC-Rio. 
+In this repository are all my homework of the **MIMO Systems** course.. 
 
 ## Prerequisites
 
